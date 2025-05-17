@@ -50192,7 +50192,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class FVApp{
-//class FVApp{
+
 	constructor(){
 		
 		if (_Global_js__WEBPACK_IMPORTED_MODULE_1__["default"].debug){
@@ -50202,13 +50202,6 @@ class FVApp{
 		this.initListeners();
 	}
 
-
-	// Example for external API
-	// setConvexPolyVisible(bool) {
-	// 	console.log(global);
-	// 	console.log(global._showConvexPolygons);
-	// 	global._showConvexPolygons = bool;
-	// }
 
 	/**
 	 * used for debug pourpose in the browser console. 
@@ -50224,7 +50217,7 @@ class FVApp{
 		if (_Global_js__WEBPACK_IMPORTED_MODULE_1__["default"].debug){
 			console.log("[FVApp::init]");
 		}
-		var canvas = document.getElementById("fabviewer_canvas");
+		let canvas = document.getElementById("fabviewer_canvas");
 		
 		try {
 			if (_Global_js__WEBPACK_IMPORTED_MODULE_1__["default"].debug){
@@ -50232,7 +50225,6 @@ class FVApp{
 				console.log(canvas);
 			}
 			
-			// this.gl = canvas.getContext("webgl", {
 			this.gl = canvas.getContext("webgl2", {
 				alpha: false
 			});
@@ -50247,9 +50239,6 @@ class FVApp{
 			this.gl.viewportHeight = canvas.height;
 			
 			this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-			// this.gl.clearColor(192,192,192, 1.0);
-			
-			// this.gl.enable(this.gl.DEPTH_TEST);
 			
 		} catch (e) {
 			console.log("Error instansiating WebGL context");
@@ -50261,8 +50250,7 @@ class FVApp{
 		this.view = new _FVView_js__WEBPACK_IMPORTED_MODULE_0__["default"](canvas, _Global_js__WEBPACK_IMPORTED_MODULE_1__["default"].insideSphere);
 		
 		_Global_js__WEBPACK_IMPORTED_MODULE_1__["default"].gl = this.gl;
-		// textHelper.init(this.gl);
-		// textShader.init();
+		
 		this.presenter = new _MainPresenter_js__WEBPACK_IMPORTED_MODULE_2__["default"](this.view, this.gl);
 		
 		this.fabVReqID = '';
@@ -50272,7 +50260,7 @@ class FVApp{
 	
 	initListeners(){
 		
-		var resizeCanvas = () => {
+		let resizeCanvas = () => {
 			if (_Global_js__WEBPACK_IMPORTED_MODULE_1__["default"].debug){
 				console.log("[MainPresenter::addEventListeners->resizeCanvas]");
 			}
@@ -50286,9 +50274,9 @@ class FVApp{
 			cancelRequestAnimFrame(this.fabVReqID);
 		}
 
-		var handleContextRestored = (event) => {
+		let handleContextRestored = (event) => {
 			console.log("[handleContextRestored]");
-			var canvas = document.getElementById("fabviewer_canvas");
+			let canvas = document.getElementById("fabviewer_canvas");
 			this.gl.viewportWidth = canvas.width;
 			this.gl.viewportHeight = canvas.height;
 			this.gl.clearColorrgbrgb(0.86, 0.86, 0.86, 1.0);
@@ -50317,7 +50305,7 @@ class FVApp{
 		this.drawScene();
 		if(_Global_js__WEBPACK_IMPORTED_MODULE_1__["default"].debug){
 			// Only do this at DEBUG since every getError call takes 5-10ms
-			var error = this.gl.getError();
+			let error = this.gl.getError();
 			if (error != this.gl.NO_ERROR && error != this.gl.CONTEXT_LOST_WEBGL) {
 				console.log("GL error: "+error);
 			}
@@ -50334,9 +50322,6 @@ class FVApp{
 	
 	
 }
-
-//export default FVApp;
-
 
 /***/ }),
 
@@ -50382,9 +50367,6 @@ class FVView {
 		this.container = jquery__WEBPACK_IMPORTED_MODULE_1__("#fabvcontainer")
 		this.container.width(window.innerWidth)
 		this.container.height(window.innerHeight)
-		
-		// this.controlpanel = document.getElementById('controlpanel');
-		// this.datapanel = document.getElementById('datapanel');
 		
 		this.widthToHeight = 4 / 3;
 	};
@@ -50444,53 +50426,9 @@ class FVView {
 		jquery__WEBPACK_IMPORTED_MODULE_1__("#datapanel").append(html);
 	}
 
-
-	// dragControl(elmnt) {
-	// 	var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-	// 	if (elmnt) {
-	// 		// if present, the header is where you move the DIV from:
-	// 		elmnt.onmousedown = dragMouseDown;
-	// 	} else {
-	// 		// otherwise, move the DIV from anywhere inside the DIV:
-	// 		elmnt.onmousedown = dragMouseDown;
-	// 	}
-
-	// 	function dragMouseDown(e) {
-	// 		e = e || window.event;
-	// 		//		    e.preventDefault();
-	// 		// get the mouse cursor position at startup:
-	// 		pos3 = e.clientX;
-	// 		pos4 = e.clientY;
-	// 		document.onmouseup = closeDragElement;
-	// 		// call a function whenever the cursor moves:
-	// 		document.onmousemove = elementDrag;
-	// 	}
-
-	// 	function elementDrag(e) {
-	// 		e = e || window.event;
-	// 		e.preventDefault();
-	// 		// calculate the new cursor position:
-	// 		pos1 = pos3 - e.clientX;
-	// 		pos2 = pos4 - e.clientY;
-	// 		pos3 = e.clientX;
-	// 		pos4 = e.clientY;
-	// 		// set the element's new position:
-	// 		elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-	// 		elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-	// 	}
-
-	// 	function closeDragElement() {
-	// 		// stop moving when mouse button is released:
-	// 		document.onmouseup = null;
-	// 		document.onmousemove = null;
-	// 	}
-	// };
-
-
-
 	resize(in_gl) {
-		var newWidth = window.innerWidth - 3;
-		var newHeight = window.innerHeight - 3;
+		const newWidth = window.innerWidth - 3;
+		const newHeight = window.innerHeight - 3;
 
 		this.container.width(newWidth)
 		this.container.height(newHeight)
@@ -50522,16 +50460,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _events_InsideSphereSelectionChangedEvent_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./events/InsideSphereSelectionChangedEvent.js */ "./src/js/events/InsideSphereSelectionChangedEvent.js");
 /* harmony import */ var _events_EventBus_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./events/EventBus.js */ "./src/js/events/EventBus.js");
 /* harmony import */ var _model_hipsnew_HiPS_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./model/hipsnew/HiPS.js */ "./src/js/model/hipsnew/HiPS.js");
-/* harmony import */ var _model_HiPSDescriptor_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./model/HiPSDescriptor.js */ "./src/js/model/HiPSDescriptor.js");
-/* harmony import */ var _config_json__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./config.json */ "./src/js/config.json");
-/* harmony import */ var _repos_HiPSNodeRepo_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./repos/HiPSNodeRepo.js */ "./src/js/repos/HiPSNodeRepo.js");
+/* harmony import */ var _config_json__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./config.json */ "./src/js/config.json");
+/* harmony import */ var _repos_HiPSNodeRepo_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./repos/HiPSNodeRepo.js */ "./src/js/repos/HiPSNodeRepo.js");
 
 
 
 
 
-
-// import HiPS from './model/hips/HiPS.js';
 
 
 
@@ -50559,15 +50494,15 @@ class Global {
 	constructor() {
 
 		this.HIPS_REF_ORDER = 6;
-		this._TAPProviders = _config_json__WEBPACK_IMPORTED_MODULE_5__.tapProviders
-		this._HiPSNodes = _config_json__WEBPACK_IMPORTED_MODULE_5__.hipsNodes
-		this._useCORSProxy = _config_json__WEBPACK_IMPORTED_MODULE_5__.useCORSProxy
-		this._corsProxyUrl=_config_json__WEBPACK_IMPORTED_MODULE_5__.corsProxyUrl
-		this._maxDecimals= _config_json__WEBPACK_IMPORTED_MODULE_5__.maxDecimals
-		this._defaultHipsUrl = _config_json__WEBPACK_IMPORTED_MODULE_5__.defaultHipsUrl
-		this._debug = _config_json__WEBPACK_IMPORTED_MODULE_5__.debug;
-		this._insideSphere = _config_json__WEBPACK_IMPORTED_MODULE_5__.insideView;
-		this._version = _config_json__WEBPACK_IMPORTED_MODULE_5__.version
+		this._TAPProviders = _config_json__WEBPACK_IMPORTED_MODULE_4__.tapProviders
+		this._HiPSNodes = _config_json__WEBPACK_IMPORTED_MODULE_4__.hipsNodes
+		this._useCORSProxy = _config_json__WEBPACK_IMPORTED_MODULE_4__.useCORSProxy
+		this._corsProxyUrl=_config_json__WEBPACK_IMPORTED_MODULE_4__.corsProxyUrl
+		this._maxDecimals= _config_json__WEBPACK_IMPORTED_MODULE_4__.maxDecimals
+		this._defaultHipsUrl = _config_json__WEBPACK_IMPORTED_MODULE_4__.defaultHipsUrl
+		this._debug = _config_json__WEBPACK_IMPORTED_MODULE_4__.debug;
+		this._insideSphere = _config_json__WEBPACK_IMPORTED_MODULE_4__.insideView;
+		this._version = _config_json__WEBPACK_IMPORTED_MODULE_4__.version
 
 		this._pMatrix = null;
 		this._mvMatrix = null;
@@ -50585,11 +50520,7 @@ class Global {
 		this._showPointsInPolygons = false;
 		this._defaultHips = null;
 		this._blendMode = false;
-		
-		// this._insideSphere = false;
-		// this._maxDecimals = 15;
-		// this._useCORSProxy = true;
-		// this._corsProxyUrl = "http://localhost:3000";
+	
 	}
 
 	get version(){
@@ -50728,61 +50659,9 @@ class Global {
 
 	get defaultHips() {
 
-		// TODO move the HiPS initialization into HiPSPresenter and leave here only the name of the HiPS
 		if (this._defaultHips == null) {
-
-			// let desc = new HiPSDescriptor("creator_did          = ivo://CDS/P/DSS2/color \n" +
-			// 	"obs_collection       = DSS colored \n" +
-			// 	"obs_title            = DSS colored \n" +
-			// 	"obs_description      = Color composition generated by CDS. This HiPS survey is based on 2 others HiPS surveys, respectively DSS2-red and DSS2-blue HiPS, both of them directly generated from original scanned plates downloaded from STScI site. The red component has been built from POSS-II F, AAO-SES,SR and SERC-ER plates. The blue component has been build from POSS-II J and SERC-J,EJ. The green component is based on the mean of other components. Three missing plates from red survey (253, 260, 359) has been replaced by pixels from the DSSColor STScI jpeg survey. The 11 missing blue plates (mainly in galactic plane) have not been replaced (only red component). \n" +
-			// 	"obs_copyright        = Digitized Sky Survey - STScI/NASA, Colored & Healpixed by CDS \n" +
-			// 	"obs_copyright_url    = http://archive.stsci.edu/dss/copyright.html \n" +
-			// 	"client_category      = Image/Optical/DSS \n" +
-			// 	"client_sort_key      = 03-00 \n" +
-			// 	"hips_builder         = Aladin/HipsGen v10.123 \n" +
-			// 	"hips_creation_date   = 2010-05-01T19:05Z \n" +
-			// 	"hips_release_date    = 2019-05-07T10:55Z \n" +
-			// 	"hips_creator         = CDS (A.Oberto, P.Fernique) \n" +
-			// 	"hips_version         = 1.4 \n" +
-			// 	"hips_order           = 9 \n" +
-			// 	"hips_frame           = equatorial \n" +
-			// 	"hips_tile_width      = 512 \n" +
-			// 	"hips_tile_format     = jpeg \n" +
-			// 	"dataproduct_type     = image \n" +
-			// 	"client_application   = AladinLite \n" +
-			// 	"hips_status          = public mirror unclonable \n" +
-			// 	"hips_rgb_red         = DSS2Merged [1488.0 8488.8125 14666.0 Linear] \n" +
-			// 	"hips_rgb_blue        = DSS2-blue-XJ-S [4286.0 12122.5 19959.0 Linear] \n" +
-			// 	"hips_hierarchy       = median \n" +
-			// 	"hips_pixel_scale     = 2.236E-4 \n" +
-			// 	"hips_initial_ra      = 085.30251 \n" +
-			// 	"hips_initial_dec     = -02.25468 \n" +
-			// 	"hips_initial_fov     = 2 \n" +
-			// 	"moc_sky_fraction     = 1 \n" +
-			// 	"hips_copyright       = CNRS/Unistra \n" +
-			// 	"obs_ack              = The Digitized Sky Surveys were produced at the Space Telescope Science Institute under U.S. Government grant NAG W-2166. The images of these surveys are based on photographic data obtained using the Oschin Schmidt Telescope on Palomar Mountain and the UK Schmidt Telescope. The plates were processed into the present compressed digital form with the permission of these institutions. The National Geographic Society - Palomar Observatory Sky Atlas (POSS-I) was made by the California Institute of Technology with grants from the National Geographic Society. The Second Palomar Observatory Sky Survey (POSS-II) was made by the California Institute of Technology with funds from the National Science Foundation, the National Geographic Society, the Sloan Foundation, the Samuel Oschin Foundation, and the Eastman Kodak Corporation. The Oschin Schmidt Telescope is operated by the California Institute of Technology and Palomar Observatory. The UK Schmidt Telescope was operated by the Royal Observatory Edinburgh, with funding from the UK Science and Engineering Research Council (later the UK Particle Physics and Astronomy Research Council), until 1988 June, and thereafter by the Anglo-Australian Observatory. The blue plates of the southern Sky Atlas and its Equatorial Extension (together known as the SERC-J), as well as the Equatorial Red (ER), and the Second Epoch [red] Survey (SES) were all taken with the UK Schmidt. Supplemental funding for sky-survey work at the ST ScI is provided by the European Southern Observatory. \n" +
-			// 	"prov_progenitor      = STScI \n" +
-			// 	"bib_reference        = 1996ASPC..101...88L \n" +
-			// 	"bib_reference_url    = http://cdsads.u-strasbg.fr/abs/1996ASPC..101...88L \n" +
-			// 	"# 1975-1999 \n" +
-			// 	"t_min                = 42413 \n" +
-			// 	"t_max                = 51179 \n" +
-			// 	"obs_regime           = Optical \n" +
-			// 	"em_min               = 4e-7 \n" +
-			// 	"em_max               = 6e-7 \n" +
-			// 	"#hips_master_url     = ex: http://yourHipsServer/null \n" +
-			// 	"hips_order_min       = 0 \n" +
-			// 	"dataproduct_subtype  = color \n" +
-			// 	"hipsgen_date         = 2019-05-07T10:55Z \n" +
-			// 	"hipsgen_params       = out=/asd-volumes/sc1-asd-volume8/DSS/DSSColor UPDATE", "https://skies.esac.esa.int/DSSColor/");
-
-			// // this._defaultHips = new HiPS(1, [0.0, 0.0, 0.0], 0, 0, "DSS colored", "//skies.esac.esa.int/DSSColor/", "jpg", 9, false, desc);
-			// this._defaultHips = new HiPS(1, [0.0, 0.0, 0.0], 0, 0, "DSS colored", this._defaultHipsUrl, "jpg", 9, false, desc);
-			// this._defaultHips.refreshModel(180);
-			// this._selectedHiPS = this._defaultHips;
 			const self = this
-			this._defaultHips = (0,_repos_HiPSNodeRepo_js__WEBPACK_IMPORTED_MODULE_6__.addHiPS)("https://skies.esac.esa.int/DSSColor/").then((descriptor) => {
-				// this._defaultHips = new HiPS(1, [0.0, 0.0, 0.0], 0, 0, "DSS colored", "//skies.esac.esa.int/DSSColor/", "jpg", 9, false, desc);
+			this._defaultHips = (0,_repos_HiPSNodeRepo_js__WEBPACK_IMPORTED_MODULE_5__.addHiPS)("https://skies.esac.esa.int/DSSColor/").then((descriptor) => {
 				self._defaultHips = new _model_hipsnew_HiPS_js__WEBPACK_IMPORTED_MODULE_3__["default"](1, [0.0, 0.0, 0.0], 0, 0, descriptor.surveyName, self._defaultHipsUrl, "jpg", descriptor.maxOrder, false, descriptor);
 				self._defaultHips.refreshModel(180);
 				self._selectedHiPS = self._defaultHips;	
@@ -50808,15 +50687,15 @@ class Global {
 	}
 
 	getConfig_cameraFovDeg(){
-		return _config_json__WEBPACK_IMPORTED_MODULE_5__.camera.fovDeg;
+		return _config_json__WEBPACK_IMPORTED_MODULE_4__.camera.fovDeg;
 	}
 	
 	getConfig_nearPlane(){
-		return _config_json__WEBPACK_IMPORTED_MODULE_5__.camera.nearPlane;
+		return _config_json__WEBPACK_IMPORTED_MODULE_4__.camera.nearPlane;
 	}
 
 	getConfig_cameraFarPlane(){
-		return _config_json__WEBPACK_IMPORTED_MODULE_5__.camera.farPlane;
+		return _config_json__WEBPACK_IMPORTED_MODULE_4__.camera.farPlane;
 	}
 
 }
@@ -50933,7 +50812,7 @@ class MainPresenter {
 			this.camera = new _model_Camera_js__WEBPACK_IMPORTED_MODULE_1__["default"]([0.0, 0.0, 3.0], _Global_js__WEBPACK_IMPORTED_MODULE_6__["default"].insideSphere);
 		}
 		_Global_js__WEBPACK_IMPORTED_MODULE_6__["default"].camera = this.camera;
-		var raypicker = new _utils_RayPickingUtils_js__WEBPACK_IMPORTED_MODULE_2__["default"](); // <-- check if it can be converted to singleton instead of putting it into global
+		let raypicker = new _utils_RayPickingUtils_js__WEBPACK_IMPORTED_MODULE_2__["default"](); // <-- check if it can be converted to singleton instead of putting it into global
 		_Global_js__WEBPACK_IMPORTED_MODULE_6__["default"].rayPicker = raypicker;
 
 		this.aspectRatio;
@@ -50983,30 +50862,6 @@ class MainPresenter {
 			this.firstRun = false;
 		}
 
-
-
-		// this.computePerspectiveMatrix();
-
-		// const initialFoV = 180.;
-		// const position = [0.0, 0.0, 0.0];
-		// const initialPhiRad = 0.;
-		// const initialThetaRad = 0.;
-		// if (this.hpGrid == undefined) {
-		// 	this.hpGrid = new HealpixGrid(1, position, initialPhiRad, initialThetaRad, initialFoV);
-		// 	newVisibleTilesManager.init(this.hpGrid); // <- here I need pmatrix for the raypicking
-		// }
-		// this.currentFoV = initialFoV;
-
-		// this.refreshFoV();
-		// setInterval(() => this.refreshFoV(), 100);
-		// this.initPresenter();
-		// this.addEventListeners();
-		// this.view.addHipsButtonHandler(() => {
-		// 	this.hipsListPresenter.toggle();
-		// });
-
-		// this.view.fillVersion(global.version)
-		// global.defaultHips;
 	};
 
 	
@@ -51044,7 +50899,7 @@ class MainPresenter {
 			let cf = c2 * Math.sin(beta);
 			farPlane = cf;
 		}
-		var pMatrix = gl_matrix__WEBPACK_IMPORTED_MODULE_24__.create();
+		let pMatrix = gl_matrix__WEBPACK_IMPORTED_MODULE_24__.create();
 		gl_matrix__WEBPACK_IMPORTED_MODULE_24__.perspective(pMatrix, this.fovDeg * Math.PI / 180.0, this.aspectRatio, this.nearPlane, farPlane);
 		_Global_js__WEBPACK_IMPORTED_MODULE_6__["default"].pMatrix = this.pMatrix; // TODO try to remove global.pMatrix
 		return pMatrix;
@@ -51058,8 +50913,6 @@ class MainPresenter {
 		_events_EventBus_js__WEBPACK_IMPORTED_MODULE_8__["default"].registerForEvent(this, _events_InsideSphereSelectionChangedEvent_js__WEBPACK_IMPORTED_MODULE_11__["default"].name);
 
 		_events_EventBus_js__WEBPACK_IMPORTED_MODULE_8__["default"].registerForEvent(this, _events_OpenPanelEvent_js__WEBPACK_IMPORTED_MODULE_12__["default"].name);
-
-		// eventBus.registerForEvent(this, OpenDataExplorerPanelEvent.name);
 
 		_events_EventBus_js__WEBPACK_IMPORTED_MODULE_8__["default"].registerForEvent(this, _modules_controlpanel_gotopanel_events_GoToEvent_js__WEBPACK_IMPORTED_MODULE_13__["default"].name);
 
@@ -51144,7 +50997,7 @@ class MainPresenter {
 			self.dataPanelPresenter.toggleView();
 		});
 
-		var handleMouseDown = (event) => {
+		let handleMouseDown = (event) => {
 			this.view.canvas.setPointerCapture(event.pointerId);
 			this.mouseDown = true;
 
@@ -51157,7 +51010,7 @@ class MainPresenter {
 			return false;
 		}
 
-		var handleMouseUp = (event) => {
+		let handleMouseUp = (event) => {
 			this.view.canvas.releasePointerCapture(event.pointerId);
 			this.mouseDown = false;
 			document.getElementsByTagName("body")[0].style.cursor = "auto";
@@ -51165,45 +51018,38 @@ class MainPresenter {
 			this.lastMouseY = event.clientY;
 
 
-			// var intersectionWithModel = RayPickingUtils.getIntersectionPointWithModel(this.lastMouseX, this.lastMouseY, this.controlPanelPresenter.hipsListPresenter.getVisibleModels());
-			var intersectionWithModel = _utils_RayPickingUtils_js__WEBPACK_IMPORTED_MODULE_2__["default"].getIntersectionPointWithModel(this.lastMouseX, this.lastMouseY, _utils_Session_js__WEBPACK_IMPORTED_MODULE_7__.session.activeHiPS);
+			// let intersectionWithModel = RayPickingUtils.getIntersectionPointWithModel(this.lastMouseX, this.lastMouseY, this.controlPanelPresenter.hipsListPresenter.getVisibleModels());
+			let intersectionWithModel = _utils_RayPickingUtils_js__WEBPACK_IMPORTED_MODULE_2__["default"].getIntersectionPointWithModel(this.lastMouseX, this.lastMouseY, _utils_Session_js__WEBPACK_IMPORTED_MODULE_7__.session.activeHiPS);
 
 			if (intersectionWithModel.intersectionPoint.intersectionPoint === undefined) {
 				return;
 			}
 			if (intersectionWithModel.intersectionPoint.intersectionPoint.length > 0) {
 
-				var phiThetaDeg = (0,_utils_Utils_js__WEBPACK_IMPORTED_MODULE_9__.cartesianToSpherical)(intersectionWithModel.intersectionPoint.intersectionPoint);
+				let phiThetaDeg = (0,_utils_Utils_js__WEBPACK_IMPORTED_MODULE_9__.cartesianToSpherical)(intersectionWithModel.intersectionPoint.intersectionPoint);
 				//TODO to be reviewed. cartesianToSpherical seems to convert already Dec into [-90, 90]
-				var raDecDeg = (0,_utils_Utils_js__WEBPACK_IMPORTED_MODULE_9__.sphericalToAstroDeg)(phiThetaDeg.phi, phiThetaDeg.theta);
-				//				var raDecDeg = {
-				//						ra: phiThetaDeg.phi,
-				//						dec: -phiThetaDeg.theta
-				//						};
-				var raHMS = (0,_utils_Utils_js__WEBPACK_IMPORTED_MODULE_9__.raDegToHMS)(raDecDeg.ra);
-				var decDMS = (0,_utils_Utils_js__WEBPACK_IMPORTED_MODULE_9__.decDegToDMS)(raDecDeg.dec);
+				let raDecDeg = (0,_utils_Utils_js__WEBPACK_IMPORTED_MODULE_9__.sphericalToAstroDeg)(phiThetaDeg.phi, phiThetaDeg.theta);
+				let raHMS = (0,_utils_Utils_js__WEBPACK_IMPORTED_MODULE_9__.raDegToHMS)(raDecDeg.ra);
+				let decDMS = (0,_utils_Utils_js__WEBPACK_IMPORTED_MODULE_9__.decDegToDMS)(raDecDeg.dec);
 				this.controlPanelPresenter.setSphericalCoordinates(phiThetaDeg);
-				//				this.view.setPickedAstroCoordinates(raDecDeg, raHMS, decDMS);
 				this.coordinatesPanelPresenter.update(raDecDeg, raHMS, decDMS, phiThetaDeg.phi, phiThetaDeg.theta);
 
-			} else {
-				// console.log("no intersection");
 			}
 			this.nearestVisibleObjectIdx = intersectionWithModel.idx;
 
 		}
 
 
-		var handleMouseMove = (event) => {
-			var newX = event.clientX;
-			var newY = event.clientY;
+		let handleMouseMove = (event) => {
+			let newX = event.clientX;
+			let newY = event.clientY;
 
 			if (this.mouseDown) {
 
 				document.getElementsByTagName("body")[0].style.cursor = "grab";
 
-				var deltaX = (newX - this.lastMouseX) * Math.PI / this.view.canvas.width;
-				var deltaY = (newY - this.lastMouseY) * Math.PI / this.view.canvas.width;
+				let deltaX = (newX - this.lastMouseX) * Math.PI / this.view.canvas.width;
+				let deltaY = (newY - this.lastMouseY) * Math.PI / this.view.canvas.width;
 
 				this.inertiaX += 0.1 * deltaX;
 				this.inertiaY += 0.1 * deltaY;
@@ -51220,9 +51066,9 @@ class MainPresenter {
 				 * 
 				 */
 				// TODO THIS LOGIC should be moved into MouseHelper class
-				var mousePicker = _utils_RayPickingUtils_js__WEBPACK_IMPORTED_MODULE_2__["default"].getIntersectionPointWithSingleModel(newX, newY);
-				var mousePoint = mousePicker.intersectionPoint;
-				var mouseObjectPicked = mousePicker.pickedObject;
+				let mousePicker = _utils_RayPickingUtils_js__WEBPACK_IMPORTED_MODULE_2__["default"].getIntersectionPointWithSingleModel(newX, newY);
+				let mousePoint = mousePicker.intersectionPoint;
+				let mouseObjectPicked = mousePicker.pickedObject;
 				if (mousePoint !== undefined) {
 
 					if (mousePoint.length > 0) {
@@ -51259,7 +51105,7 @@ class MainPresenter {
 		this.keyPressed = false;
 
 
-		var handleKeyUp = (event) => {
+		let handleKeyUp = (event) => {
 			this.keyPressed = false;
 			this.zoomIn = false;
 			this.zoomOut = false;
@@ -51269,13 +51115,13 @@ class MainPresenter {
 			this.keyPressed = false;
 		}
 
-		var handleKeyPress = (event) => {
+		let handleKeyPress = (event) => {
 
-			var code = event.keyCode;
+			let code = event.keyCode;
 
-			var move = gl_matrix__WEBPACK_IMPORTED_MODULE_25__.clone([0, 0, 0]);
-			var rotStep = 0.01;
-			var pan = false;
+			let move = gl_matrix__WEBPACK_IMPORTED_MODULE_25__.clone([0, 0, 0]);
+			let rotStep = 0.01;
+			let pan = false;
 			switch (code) {
 				case 38:// arrowUp
 					this.zoomInertia -= 0.0001;
@@ -51312,7 +51158,7 @@ class MainPresenter {
 
 		}
 
-		var handleMouseWheel = (event) => {
+		let handleMouseWheel = (event) => {
 
 			if (event.deltaY < 0) {
 				// Zoom in
@@ -51338,13 +51184,13 @@ class MainPresenter {
 	getModelCenter() {
 
 
-		var rect = this.view.canvas.getBoundingClientRect();
+		let rect = this.view.canvas.getBoundingClientRect();
 
 
 		let centralCanvasX = (rect.left + this.view.canvas.width) / 2;
 		let centralCanvasY = (rect.top + this.view.canvas.height) / 2;
 
-		var intersectionWithModel = _utils_RayPickingUtils_js__WEBPACK_IMPORTED_MODULE_2__["default"].getIntersectionPointWithModel(centralCanvasX, centralCanvasY, this.getVisibleModels());
+		let intersectionWithModel = _utils_RayPickingUtils_js__WEBPACK_IMPORTED_MODULE_2__["default"].getIntersectionPointWithModel(centralCanvasX, centralCanvasY, this.getVisibleModels());
 		if (intersectionWithModel.intersectionPoint.intersectionPoint === undefined) {
 			return;
 		}
@@ -51354,15 +51200,7 @@ class MainPresenter {
 			let raDecDeg = (0,_utils_Utils_js__WEBPACK_IMPORTED_MODULE_9__.sphericalToAstroDeg)(phiThetaDeg.phi, phiThetaDeg.theta);
 			let raHMS = (0,_utils_Utils_js__WEBPACK_IMPORTED_MODULE_9__.raDegToHMS)(raDecDeg.ra);
 			let decDMS = (0,_utils_Utils_js__WEBPACK_IMPORTED_MODULE_9__.decDegToDMS)(raDecDeg.dec);
-
-			// console.log(intersectionWithModel.pickedObject.name);
-			// console.log(phiThetaDeg);
-			// console.log(raDecDeg);
-
-
-		} else {
-			// console.log("no intersection");
-		}
+		} 
 		return this.nearestVisibleObjectIdx;
 	}
 
@@ -51390,30 +51228,6 @@ class MainPresenter {
 
 		this.aspectRatio = this.view.canvas.width / this.view.canvas.height;
 		this.pMatrix = this.computePerspectiveMatrix();
-		// if (this.firstRun) {
-		// 	const initialFoV = 180.;
-		// 	const position = [0.0, 0.0, 0.0];
-		// 	const initialPhiRad = 0.;
-		// 	const initialThetaRad = 0.;
-		// 	if (this.hpGrid == undefined) {
-		// 		this.hpGrid = new HealpixGrid(1, position, initialPhiRad, initialThetaRad, initialFoV);
-		// 		newVisibleTilesManager.init(this.hpGrid); // <- here I need pmatrix for the raypicking
-		// 	}
-		// 	this.currentFoV = initialFoV;
-
-		// 	this.refreshFoV(this.pMatrix);
-		// 	setInterval(() => this.refreshFoV(), 100);
-		// 	this.initPresenter();
-		// 	this.addEventListeners();
-		// 	this.view.addHipsButtonHandler(() => {
-		// 		this.hipsListPresenter.toggle();
-		// 	});
-		// 	this.view.fillVersion(global.version)
-		// 	global.defaultHips;
-		// 	this.firstRun = false;
-		// }
-
-
 		if (this.fovObj === undefined) {
 			return;
 		}
@@ -51423,8 +51237,8 @@ class MainPresenter {
 
 		_Global_js__WEBPACK_IMPORTED_MODULE_6__["default"].gl.clear(_Global_js__WEBPACK_IMPORTED_MODULE_6__["default"].gl.COLOR_BUFFER_BIT | _Global_js__WEBPACK_IMPORTED_MODULE_6__["default"].gl.DEPTH_BUFFER_BIT);
 
-		var cameraRotated = false;
-		var THETA, PHI;
+		let cameraRotated = false;
+		let THETA, PHI;
 
 		if (this.keyPressed) {
 			if (this.Yrot != 0) {
@@ -51463,7 +51277,7 @@ class MainPresenter {
 			}
 
 
-			//!!!! TODO REFRESH ControlPanelPresenter model only if the panel is open
+			//TODO REFRESH ControlPanelPresenter model only if the panel is open
 			this.controlPanelPresenter.refreshModel();
 
 			let activeHips = _utils_Session_js__WEBPACK_IMPORTED_MODULE_7__.session.activeHiPS;
@@ -68261,7 +68075,7 @@ class CoordinatesPanelView{
     	
         this.init();
         
-        var _public = {
+        let _public = {
     
             getHtml: ()=>{
                 return this._html;
@@ -68331,7 +68145,7 @@ class FoVView{
     	
         this.init();
         
-        var _public = {
+        let _public = {
     
             getHtml: ()=>{
                 return this._html;
@@ -68379,7 +68193,7 @@ class SettingsPanelView{
         
         this.init(insideSphere);
     
-        var _public = {
+        let _public = {
             getHtml: ()=>{
                 return this._html;
             },
@@ -68807,49 +68621,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _js_FVApp_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./js/FVApp.js */ "./src/js/FVApp.js");
 /* harmony import */ var _js_FVApi_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./js/FVApi.js */ "./src/js/FVApi.js");
-// "use strict";
-// import './css/style.css';
-// import './css/controlpanelcontainer.css';
-// import './css/fovcontainer.css';
-// import './css/coordinatespanel.css';
-
-// import './css/style.css!';
-// import './css/controlpanelcontainer.css!';
-
-// import { readFile } from 'fs/promises';
-
-// import cssContent from 'css/controlpanelcontainer.css!text';
-// console.log('CSS file contents: ', cssContent);
 
 
-// var myStylesheets = ['./css/controlpanelcontainer.css', './css/style.css'];
-
-// async function loadStyles(stylesheets) {
-//     let arr = await Promise.all(stylesheets.map(url => readFile(url)))
-//     arr = await Promise.all(arr.map(url => url.text()))
-//     const style = document.createElement('style')
-//     style.textContent = arr.reduce(
-//         (prev, fileContents) => prev + fileContents, ''
-//     )
-//     document.head.appendChild(style);
-//     console.log(style);
-//     fabViewer = new FVApp();
-//     fabViewer.run();
-
-// }
-
-// loadStyles(myStylesheets)
-
-// ##########################
-// import '../polyfill.ts';
-// import FVApp from './js/FVApp.js';
-
-// fabViewer = new FVApp();
-// fabViewer.run();
-
-
-
-//export default FVApp;
 
 })();
 

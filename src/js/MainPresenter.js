@@ -19,7 +19,7 @@ import { session } from './utils/Session.js';
 import eventBus from './events/EventBus.js';
 
 import { mat4, vec3 } from 'gl-matrix';
-import { cartesianToSpherical, sphericalToAstroDeg, sphericalToCartesian, raDegToHMS, decDegToDMS, degToRad } from './utils/Utils.js';
+import { cartesianToSpherical, sphericalToAstroDeg, raDegToHMS, decDegToDMS } from './utils/Utils.js';
 import MouseHelper from './utils/MouseHelper.js';
 
 
@@ -67,7 +67,7 @@ class MainPresenter {
 			this.camera = new Camera([0.0, 0.0, 3.0], global.insideSphere);
 		}
 		global.camera = this.camera;
-		var raypicker = new RayPickingUtils(); // <-- check if it can be converted to singleton instead of putting it into global
+		let raypicker = new RayPickingUtils(); // <-- check if it can be converted to singleton instead of putting it into global
 		global.rayPicker = raypicker;
 
 		this.aspectRatio;
@@ -117,30 +117,6 @@ class MainPresenter {
 			this.firstRun = false;
 		}
 
-
-
-		// this.computePerspectiveMatrix();
-
-		// const initialFoV = 180.;
-		// const position = [0.0, 0.0, 0.0];
-		// const initialPhiRad = 0.;
-		// const initialThetaRad = 0.;
-		// if (this.hpGrid == undefined) {
-		// 	this.hpGrid = new HealpixGrid(1, position, initialPhiRad, initialThetaRad, initialFoV);
-		// 	newVisibleTilesManager.init(this.hpGrid); // <- here I need pmatrix for the raypicking
-		// }
-		// this.currentFoV = initialFoV;
-
-		// this.refreshFoV();
-		// setInterval(() => this.refreshFoV(), 100);
-		// this.initPresenter();
-		// this.addEventListeners();
-		// this.view.addHipsButtonHandler(() => {
-		// 	this.hipsListPresenter.toggle();
-		// });
-
-		// this.view.fillVersion(global.version)
-		// global.defaultHips;
 	};
 
 	
@@ -178,7 +154,7 @@ class MainPresenter {
 			let cf = c2 * Math.sin(beta);
 			farPlane = cf;
 		}
-		var pMatrix = mat4.create();
+		let pMatrix = mat4.create();
 		mat4.perspective(pMatrix, this.fovDeg * Math.PI / 180.0, this.aspectRatio, this.nearPlane, farPlane);
 		global.pMatrix = this.pMatrix; // TODO try to remove global.pMatrix
 		return pMatrix;
@@ -192,8 +168,6 @@ class MainPresenter {
 		eventBus.registerForEvent(this, InsideSphereSelectionChangedEvent.name);
 
 		eventBus.registerForEvent(this, OpenPanelEvent.name);
-
-		// eventBus.registerForEvent(this, OpenDataExplorerPanelEvent.name);
 
 		eventBus.registerForEvent(this, GoToEvent.name);
 
@@ -278,7 +252,7 @@ class MainPresenter {
 			self.dataPanelPresenter.toggleView();
 		});
 
-		var handleMouseDown = (event) => {
+		let handleMouseDown = (event) => {
 			this.view.canvas.setPointerCapture(event.pointerId);
 			this.mouseDown = true;
 
@@ -291,7 +265,7 @@ class MainPresenter {
 			return false;
 		}
 
-		var handleMouseUp = (event) => {
+		let handleMouseUp = (event) => {
 			this.view.canvas.releasePointerCapture(event.pointerId);
 			this.mouseDown = false;
 			document.getElementsByTagName("body")[0].style.cursor = "auto";
@@ -299,45 +273,38 @@ class MainPresenter {
 			this.lastMouseY = event.clientY;
 
 
-			// var intersectionWithModel = RayPickingUtils.getIntersectionPointWithModel(this.lastMouseX, this.lastMouseY, this.controlPanelPresenter.hipsListPresenter.getVisibleModels());
-			var intersectionWithModel = RayPickingUtils.getIntersectionPointWithModel(this.lastMouseX, this.lastMouseY, session.activeHiPS);
+			// let intersectionWithModel = RayPickingUtils.getIntersectionPointWithModel(this.lastMouseX, this.lastMouseY, this.controlPanelPresenter.hipsListPresenter.getVisibleModels());
+			let intersectionWithModel = RayPickingUtils.getIntersectionPointWithModel(this.lastMouseX, this.lastMouseY, session.activeHiPS);
 
 			if (intersectionWithModel.intersectionPoint.intersectionPoint === undefined) {
 				return;
 			}
 			if (intersectionWithModel.intersectionPoint.intersectionPoint.length > 0) {
 
-				var phiThetaDeg = cartesianToSpherical(intersectionWithModel.intersectionPoint.intersectionPoint);
+				let phiThetaDeg = cartesianToSpherical(intersectionWithModel.intersectionPoint.intersectionPoint);
 				//TODO to be reviewed. cartesianToSpherical seems to convert already Dec into [-90, 90]
-				var raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta);
-				//				var raDecDeg = {
-				//						ra: phiThetaDeg.phi,
-				//						dec: -phiThetaDeg.theta
-				//						};
-				var raHMS = raDegToHMS(raDecDeg.ra);
-				var decDMS = decDegToDMS(raDecDeg.dec);
+				let raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta);
+				let raHMS = raDegToHMS(raDecDeg.ra);
+				let decDMS = decDegToDMS(raDecDeg.dec);
 				this.controlPanelPresenter.setSphericalCoordinates(phiThetaDeg);
-				//				this.view.setPickedAstroCoordinates(raDecDeg, raHMS, decDMS);
 				this.coordinatesPanelPresenter.update(raDecDeg, raHMS, decDMS, phiThetaDeg.phi, phiThetaDeg.theta);
 
-			} else {
-				// console.log("no intersection");
 			}
 			this.nearestVisibleObjectIdx = intersectionWithModel.idx;
 
 		}
 
 
-		var handleMouseMove = (event) => {
-			var newX = event.clientX;
-			var newY = event.clientY;
+		let handleMouseMove = (event) => {
+			let newX = event.clientX;
+			let newY = event.clientY;
 
 			if (this.mouseDown) {
 
 				document.getElementsByTagName("body")[0].style.cursor = "grab";
 
-				var deltaX = (newX - this.lastMouseX) * Math.PI / this.view.canvas.width;
-				var deltaY = (newY - this.lastMouseY) * Math.PI / this.view.canvas.width;
+				let deltaX = (newX - this.lastMouseX) * Math.PI / this.view.canvas.width;
+				let deltaY = (newY - this.lastMouseY) * Math.PI / this.view.canvas.width;
 
 				this.inertiaX += 0.1 * deltaX;
 				this.inertiaY += 0.1 * deltaY;
@@ -354,9 +321,9 @@ class MainPresenter {
 				 * 
 				 */
 				// TODO THIS LOGIC should be moved into MouseHelper class
-				var mousePicker = RayPickingUtils.getIntersectionPointWithSingleModel(newX, newY);
-				var mousePoint = mousePicker.intersectionPoint;
-				var mouseObjectPicked = mousePicker.pickedObject;
+				let mousePicker = RayPickingUtils.getIntersectionPointWithSingleModel(newX, newY);
+				let mousePoint = mousePicker.intersectionPoint;
+				let mouseObjectPicked = mousePicker.pickedObject;
 				if (mousePoint !== undefined) {
 
 					if (mousePoint.length > 0) {
@@ -393,7 +360,7 @@ class MainPresenter {
 		this.keyPressed = false;
 
 
-		var handleKeyUp = (event) => {
+		let handleKeyUp = (event) => {
 			this.keyPressed = false;
 			this.zoomIn = false;
 			this.zoomOut = false;
@@ -403,13 +370,13 @@ class MainPresenter {
 			this.keyPressed = false;
 		}
 
-		var handleKeyPress = (event) => {
+		let handleKeyPress = (event) => {
 
-			var code = event.keyCode;
+			let code = event.keyCode;
 
-			var move = vec3.clone([0, 0, 0]);
-			var rotStep = 0.01;
-			var pan = false;
+			let move = vec3.clone([0, 0, 0]);
+			let rotStep = 0.01;
+			let pan = false;
 			switch (code) {
 				case 38:// arrowUp
 					this.zoomInertia -= 0.0001;
@@ -446,7 +413,7 @@ class MainPresenter {
 
 		}
 
-		var handleMouseWheel = (event) => {
+		let handleMouseWheel = (event) => {
 
 			if (event.deltaY < 0) {
 				// Zoom in
@@ -472,13 +439,13 @@ class MainPresenter {
 	getModelCenter() {
 
 
-		var rect = this.view.canvas.getBoundingClientRect();
+		let rect = this.view.canvas.getBoundingClientRect();
 
 
 		let centralCanvasX = (rect.left + this.view.canvas.width) / 2;
 		let centralCanvasY = (rect.top + this.view.canvas.height) / 2;
 
-		var intersectionWithModel = RayPickingUtils.getIntersectionPointWithModel(centralCanvasX, centralCanvasY, this.getVisibleModels());
+		let intersectionWithModel = RayPickingUtils.getIntersectionPointWithModel(centralCanvasX, centralCanvasY, this.getVisibleModels());
 		if (intersectionWithModel.intersectionPoint.intersectionPoint === undefined) {
 			return;
 		}
@@ -488,15 +455,7 @@ class MainPresenter {
 			let raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta);
 			let raHMS = raDegToHMS(raDecDeg.ra);
 			let decDMS = decDegToDMS(raDecDeg.dec);
-
-			// console.log(intersectionWithModel.pickedObject.name);
-			// console.log(phiThetaDeg);
-			// console.log(raDecDeg);
-
-
-		} else {
-			// console.log("no intersection");
-		}
+		} 
 		return this.nearestVisibleObjectIdx;
 	}
 
@@ -524,30 +483,6 @@ class MainPresenter {
 
 		this.aspectRatio = this.view.canvas.width / this.view.canvas.height;
 		this.pMatrix = this.computePerspectiveMatrix();
-		// if (this.firstRun) {
-		// 	const initialFoV = 180.;
-		// 	const position = [0.0, 0.0, 0.0];
-		// 	const initialPhiRad = 0.;
-		// 	const initialThetaRad = 0.;
-		// 	if (this.hpGrid == undefined) {
-		// 		this.hpGrid = new HealpixGrid(1, position, initialPhiRad, initialThetaRad, initialFoV);
-		// 		newVisibleTilesManager.init(this.hpGrid); // <- here I need pmatrix for the raypicking
-		// 	}
-		// 	this.currentFoV = initialFoV;
-
-		// 	this.refreshFoV(this.pMatrix);
-		// 	setInterval(() => this.refreshFoV(), 100);
-		// 	this.initPresenter();
-		// 	this.addEventListeners();
-		// 	this.view.addHipsButtonHandler(() => {
-		// 		this.hipsListPresenter.toggle();
-		// 	});
-		// 	this.view.fillVersion(global.version)
-		// 	global.defaultHips;
-		// 	this.firstRun = false;
-		// }
-
-
 		if (this.fovObj === undefined) {
 			return;
 		}
@@ -557,8 +492,8 @@ class MainPresenter {
 
 		global.gl.clear(global.gl.COLOR_BUFFER_BIT | global.gl.DEPTH_BUFFER_BIT);
 
-		var cameraRotated = false;
-		var THETA, PHI;
+		let cameraRotated = false;
+		let THETA, PHI;
 
 		if (this.keyPressed) {
 			if (this.Yrot != 0) {
@@ -597,7 +532,7 @@ class MainPresenter {
 			}
 
 
-			//!!!! TODO REFRESH ControlPanelPresenter model only if the panel is open
+			//TODO REFRESH ControlPanelPresenter model only if the panel is open
 			this.controlPanelPresenter.refreshModel();
 
 			let activeHips = session.activeHiPS;

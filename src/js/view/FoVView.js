@@ -10,7 +10,7 @@ class FoVView{
     	
         this.init();
         
-        var _public = {
+        let _public = {
     
             getHtml: ()=>{
                 return this._html;

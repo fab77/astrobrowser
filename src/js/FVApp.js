@@ -6,7 +6,7 @@ import global from './Global.js';
 import MainPresenter from './MainPresenter.js';
 
 export class FVApp{
-//class FVApp{
+
 	constructor(){
 		
 		if (global.debug){
@@ -16,13 +16,6 @@ export class FVApp{
 		this.initListeners();
 	}
 
-
-	// Example for external API
-	// setConvexPolyVisible(bool) {
-	// 	console.log(global);
-	// 	console.log(global._showConvexPolygons);
-	// 	global._showConvexPolygons = bool;
-	// }
 
 	/**
 	 * used for debug pourpose in the browser console. 
@@ -38,7 +31,7 @@ export class FVApp{
 		if (global.debug){
 			console.log("[FVApp::init]");
 		}
-		var canvas = document.getElementById("fabviewer_canvas");
+		let canvas = document.getElementById("fabviewer_canvas");
 		
 		try {
 			if (global.debug){
@@ -46,7 +39,6 @@ export class FVApp{
 				console.log(canvas);
 			}
 			
-			// this.gl = canvas.getContext("webgl", {
 			this.gl = canvas.getContext("webgl2", {
 				alpha: false
 			});
@@ -61,9 +53,6 @@ export class FVApp{
 			this.gl.viewportHeight = canvas.height;
 			
 			this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-			// this.gl.clearColor(192,192,192, 1.0);
-			
-			// this.gl.enable(this.gl.DEPTH_TEST);
 			
 		} catch (e) {
 			console.log("Error instansiating WebGL context");
@@ -75,8 +64,7 @@ export class FVApp{
 		this.view = new FVView(canvas, global.insideSphere);
 		
 		global.gl = this.gl;
-		// textHelper.init(this.gl);
-		// textShader.init();
+		
 		this.presenter = new MainPresenter(this.view, this.gl);
 		
 		this.fabVReqID = '';
@@ -86,7 +74,7 @@ export class FVApp{
 	
 	initListeners(){
 		
-		var resizeCanvas = () => {
+		let resizeCanvas = () => {
 			if (global.debug){
 				console.log("[MainPresenter::addEventListeners->resizeCanvas]");
 			}
@@ -100,9 +88,9 @@ export class FVApp{
 			cancelRequestAnimFrame(this.fabVReqID);
 		}
 
-		var handleContextRestored = (event) => {
+		let handleContextRestored = (event) => {
 			console.log("[handleContextRestored]");
-			var canvas = document.getElementById("fabviewer_canvas");
+			let canvas = document.getElementById("fabviewer_canvas");
 			this.gl.viewportWidth = canvas.width;
 			this.gl.viewportHeight = canvas.height;
 			this.gl.clearColorrgbrgb(0.86, 0.86, 0.86, 1.0);
@@ -131,7 +119,7 @@ export class FVApp{
 		this.drawScene();
 		if(global.debug){
 			// Only do this at DEBUG since every getError call takes 5-10ms
-			var error = this.gl.getError();
+			let error = this.gl.getError();
 			if (error != this.gl.NO_ERROR && error != this.gl.CONTEXT_LOST_WEBGL) {
 				console.log("GL error: "+error);
 			}
@@ -148,5 +136,3 @@ export class FVApp{
 	
 	
 }
-
-//export default FVApp;

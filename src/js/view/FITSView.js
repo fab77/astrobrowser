@@ -20,7 +20,7 @@ class FITSView {
 	}
 	
 	addCheckedHandler(handler){
-		var checkbox = document.getElementById("fitsEnabled");
+		let checkbox = document.getElementById("fitsEnabled");
 		$('#fitsEnabled').click(handler);
     }
 
