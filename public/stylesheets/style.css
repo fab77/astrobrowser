@@ -1,0 +1,148 @@
+:root {
+	--commonBg: rgba(0, 0, 0, .85);
+	--commonHover: rgba(42, 54, 239, 0.17);
+	--commonActive: rgba(42, 54, 239, 0.3);
+	--commonfontfamily: monospace;
+	--commonTextColor: #57d1c9;
+}
+
+body {
+	margin: 0px;
+	border: 0px;
+	padding: 0px;
+	font-family: var(--commonfontfamily);
+	background-color: black;
+	overflow: hidden;
+}
+
+#fabviewer_canvas {
+	/* 	position: absolute; */
+	left: 0px;
+	top: 0px;
+}
+
+#fabvcontainer {
+	/* 	border: 1px solid green; */
+	min-width: 150px;
+	min-height: 150px;
+	float: left;
+	position: relative;
+}
+
+#version {
+	position: absolute;
+	bottom: 3px;
+	left: 50%;
+	height: 18px;
+	color: #57d1c9;
+}
+
+#message {
+	position: absolute;
+	top: 64px;
+	color: #57d1c9;
+	left: 41%;
+	width: 267px;
+	overflow: scroll;
+	max-height: 50px;
+}
+
+#controlpanel {
+	border: 1px solid black;
+	padding: 5px;
+	min-width: 180px;
+	min-height: 50px;
+	position: absolute;
+	width: 20%;
+	background-color: rgba(255, 255, 255, .15);
+	backdrop-filter: blur(5px);
+	color: #85d6d1;
+	cursor: move;
+	text-shadow: 0px 0px 5px #85d6d1;
+	font-family: monospace;
+	border-radius: 5px;
+	left: 1%;
+	top: 1%;
+}
+
+#metadata_button {
+	bottom: 2px;
+	position: absolute;
+	right: 10px;
+	padding: 1px;
+}
+
+#metadata_button>img{
+	height: 40px;
+}
+/* #metadata_button {
+	bottom: 0px;
+	width: 73px;
+	height: 16px;
+	position: absolute;
+	right: 10px;
+	padding: 1px;
+	font-size: 12px;
+} */
+
+#datapanel {
+	min-height: 150px;
+	border: 1px solid blue;
+	position: absolute;
+	width: 99%;
+	height: 20%;
+	bottom: 25px;
+	left: auto;
+	right: auto;
+	margin-left: 4px;
+	background: cornflowerblue;
+	overflow: scroll;
+}
+
+.button {
+	border: none;
+	color: white;
+	padding: 5px 12px;
+	text-align: center;
+	text-decoration: none;
+	display: block;
+	font-size: 16px;
+	margin: 4px 2px;
+	border-radius: 5px;
+	cursor: pointer;
+	background-color: #008CBA;
+}
+
+
+::-webkit-scrollbar {
+	width: 12px;
+}
+
+::-webkit-scrollbar-corner {
+	background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+	background: rgba(255, 255, 255, 0.8);
+	box-shadow: inset 0 0 6px rgb(0 0 0 / 50%);
+	-webkit-box-shadow: inset 0 0 6px rgb(0 0 0 / 50%);
+}
+
+::-webkit-scrollbar-track {
+	box-shadow: inset 0 0 6px rgb(0 0 0 / 30%);
+	-webkit-box-shadow: inset 0 0 6px rgb(0 0 0 / 30%);
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+}
+
+.floating-div-ra {
+	position: absolute;
+	color: blue;
+}
+
+.floating-div-dec {
+	position: absolute;
+	color: green;
+}

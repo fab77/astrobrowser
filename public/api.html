@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>
+        FabViewer API
+    </title>
+    <base href="." />
+    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
+
+</head>
+
+<body onload="run();">
+    <script src="./javascripts/fabviewer.js"></script>
+    <script>
+        function run() {
+            
+            let api = new fabviewer.FVApi();
+            console.log(api.testText());
+        }
+    </script>
+    
+</body>
+
+</html>

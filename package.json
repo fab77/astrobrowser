@@ -1,0 +1,88 @@
+{
+  "name": "astrobrowser",
+  "description": "WebGL 3D astro maps visualizer in HiPS format supporting PNG, JPG and FITS format",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "keyword": [
+    "HiPS web viewer",
+    "astronomy",
+    "FITS on the web",
+    "HiPS",
+    "VO",
+    "IVOA",
+    "Virtual Observatory",
+    "ADQL",
+    "TAP"
+  ],
+  "author": "Fabrizio Giordano (fab77)",
+  "license": "MIT",
+  "homepage": "https://github.com/fab77/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fab77/"
+  },
+  "bugs": {
+    "url": "https://github.com/fab77/"
+  },
+  "scripts": {
+    "start": "node ./server/bin/www.js",
+    "server": "nodemon ./server/bin/www",
+    "devstart": "nodemon ./server/bin/www.js",
+    "serverstart": "DEBUG=test:* npm run devstart",
+    "all": "npm i; mkdir public; npm run clean; npm run compile; npm run deploy",
+    "clean": "shx rm -rf _bundles/* lib-esm/* public/*",
+    "compile": "npm run clean && cp src/html/* _bundles/ && webpack --mode=development ",
+    "deploy": "mv _bundles/index.html public/; mkdir public/javascripts; mv _bundles/*.js public/javascripts/; mv _bundles/*.map public/javascripts/; mv -v _bundles/* public/"
+  },
+  "dependencies": {
+    "axios": "^1.3.4",
+    "axios-express-proxy": "^1.1.0",
+    "blob-polyfill": "^9.0.20240710",
+    "buffer": "^6.0.3",
+    "canvas": "3.1.0",
+    "compression": "^1.7.4",
+    "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
+    "cross-fetch": "^3.1.5",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "fs": "^0.0.1-security",
+    "gl-matrix": "^3.3.0",
+    "healpixjs": "^1.0.3",
+    "helmet": "^6.0.1",
+    "jquery": "^3.6.1",
+    "jsfitsio": "^1.1.15",
+    "koa": "^2.13.4",
+    "koa-cors": "^0.0.16",
+    "koa-proxy": "^1.0.0-alpha.3",
+    "morgan": "~1.9.1",
+    "node-fetch": "^3.1.0",
+    "tabulator-tables": "^5.6.1",
+    "wcslight": "^1.0.19",
+    "webpack-dev-middleware": "^5.2.2"
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.3",
+    "@types/node": "^18.7.23",
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.7.1",
+    "filemanager-webpack-plugin": "^8.0.0",
+    "mini-css-extract-plugin": "^2.6.1",
+    "node-static": "^0.7.11",
+    "nodemon": "^2.0.20",
+    "shx": "^0.3.4",
+    "style-loader": "^3.3.1",
+    "ts-loader": "^9.4.0",
+    "typescript": "^4.8.3",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0"
+  },
+  "browser": {
+    "fs": false,
+    "node:fs/promises": false,
+    "node:fs": false,
+    "fs/promises": false,
+    "process": false
+  }
+}

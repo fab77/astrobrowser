@@ -1,0 +1,16 @@
+{
+    "tapProviders": [
+		"https://archive.eso.org/tap_cat/",
+		"https://archive.eso.org/tap_obs/",
+		"https://sky.esa.int/esasky-tap/tap/",
+		"https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/argus"
+	],
+    "hipsNodes": ["https://skies.esac.esa.int/"],
+    "corsProxyUrl": "https://astro3dbrowser-production.up.railway.app",
+    "useCORSProxy": true,
+    "maxDecimals": 15,
+    "defaultHipsUrl": "//skies.esac.esa.int/DSSColor/",
+    "version": "fabviewer 1.0.6_alpha",
+    "debug": false,
+    "insideView": false
+}

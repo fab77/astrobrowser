@@ -1,0 +1,168 @@
+"use strict";
+/**
+ * @author Fabrizio Giordano (Fab77)
+ */
+import Tile from './Tile.js';
+import AllSkyTile from './AllSkyTile.js';
+import { loadAllskyImage } from "./AllskyImageLoader.js";
+import HiPSDescriptor from '../HiPSDescriptor.js';
+import HiPS from './HiPS4.js';
+class TilesBuffer {
+
+    _tiles;
+    _cache;
+    _shaderprogram;
+    _descriptor;
+    _format;
+
+    /**
+     * 
+     * @param {HiPSDescriptor} descriptor 
+     * @param {*} format 
+     * @param {*} shaderProgram 
+     * @param {*} samplerIdx 
+     * @param {HiPS} hips 
+     */
+    constructor(descriptor, format, shaderProgram, samplerIdx, hips) {
+
+        this._descriptor = descriptor;
+        this._format = format;
+        this._shaderprogram = shaderProgram;
+        this._samplerIdx = samplerIdx;
+        this._allsky = (descriptor.minOrder >= 3);
+
+        this._curorder = undefined;
+        this._curpixels;
+        if (this._allsky) {
+            this._allskyImage = undefined;
+            // TODO load AllSky file
+            let texturl = this._descriptor.url + "/Norder3/Allsky." + format;
+            loadAllskyImage(texturl).then((image) => {
+                this._allskyImage = image;
+                this.updateTiles(this._curpixels, this._curorder);
+
+            }).catch(function (err) {
+                console.log("[TilesBuffer] " + err);
+            });
+        }
+        this._tiles = new Map();
+        this._tilesCache = new Map();
+
+        this._hips = hips;
+
+    }
+
+    getTiles() {
+        return this._tiles;
+    }
+
+    purgeTile(tileid) {
+        // console.log("Removing tile "+tileid);
+        let tile = this._tiles.get(tileid);
+        this._tilesCache.set(tileid, tile);
+        this._tiles.delete(tileid);
+    }
+
+    purgeChildrenTiles() {
+        for (const [key, value] of this._tiles.entries()) {
+            let order = parseInt(key.split("#")[0]);
+            if (order > this._curorder) {
+                this._tiles.delete(key);
+            }
+        }
+    }
+
+    childLoaded(parenttileno, parentorder, childtileno) {
+
+        if (this._tiles.has(parentorder + "#" + parenttileno)) {
+            let parentTile = this._tiles.get(parentorder + "#" + parenttileno);
+            if (parentTile !== undefined) {
+                parentTile.addChild(childtileno);
+            }
+            
+        }
+    }
+
+    garbageCollector() {
+        // iterate over this._parent4Children and remove all loaded
+        for (let [order, value] of this._parent4Children) {
+            for (let [parent, children] of value) {
+                if (children.size == 4) {
+                    this._tiles.delete(order + "#" + parent);
+                    this._parent4Children.get(order).delete(parent);
+                }
+            }
+        }
+    }
+
+    clearAll() {
+        this._tiles = new Map();
+    }
+
+    updateTiles(pixels, order) {
+
+        if (order > this._hips.maxOrder) {
+            order = this._hips.maxOrder;
+        }
+
+        if (this._curorder !== undefined && this._curorder > order) {
+            this._curorder = order;
+            this.purgeChildrenTiles();
+        }
+        
+        this._curorder = order;
+        this._curpixels = pixels;
+
+        for (let p = 0; p < pixels.length; p++) {
+            // TODO idea: each Tile shoud be a Promise. It gets added when the texture loading is done. Than, move here the check for parent deletion            
+            if (!this._tiles.has(order + "#" + pixels[p])) {
+                let tile;
+                if (this._tilesCache.has(order + "#" + pixels[p])) {
+                    tile = this._tilesCache.get(order + "#" + pixels[p]);
+                    this._tilesCache.delete(order + "#" + pixels[p]);
+
+                    this._tiles.set(order + "#" + pixels[p], tile);
+                    
+                } else if (this._allsky && order < 3) {
+                    if (this._allskyImage !== undefined) {
+                        // TODO instantiate AllSkyTile
+                        // this._tiles.set(order+"#"+pixels[p], new AllSkyTile(pixels[p], this._descriptor, this._format, order, this._shaderprogram, this, this._hips, this._samplerIdx, this._allskyImage));
+                        tile = new AllSkyTile(pixels[p], this._descriptor, this._format, order, this._shaderprogram, this, this._hips, this._samplerIdx, this._allskyImage);
+                    }
+                } else {
+                    // this._tiles.set(order+"#"+pixels[p], new Tile(pixels[p], this._descriptor, this._format, order, this._shaderprogram, this, this._hips, this._samplerIdx));
+
+
+                    // const promiseTile = new Promise( (resolve, reject) => {
+                    //     tile = new Tile(pixels[p], this._descriptor, this._format, order, this._shaderprogram, this, this._hips, this._samplerIdx);
+                    // });
+                    // promiseTile.then( (val) => this._tilesCache.set(order + "#" + pixels[p], tile) );
+                    // let _self = this;
+                    // now = Date.now();
+                    // console.log((now - before) +"[updateTiles] new tile ");
+                    // before = now;
+
+                    tile = new Tile(pixels[p], this._descriptor, this._format, order, this._shaderprogram, this, this._hips, this._samplerIdx);
+                    // tile = new Tile(pixels[p], this._descriptor, this._format, order, this._shaderprogram, this, this._hips, this._samplerIdx, this._tiles);
+
+                    // now = Date.now();
+                    // console.log((now - before) +"[updateTiles] tile loaded ");
+                    // before = now;
+
+                    // tile = new Tile(pixels[p], this._descriptor, this._format, order, this._shaderprogram, this, this._hips, this._samplerIdx);
+                    // this._tilesCache.set(order + "#" + pixels[p], tile);
+                }
+
+                this._tiles.set(order + "#" + pixels[p], tile);
+
+            }
+        }
+        console.log(this._tiles);
+    }
+
+    
+
+}
+
+
+export default TilesBuffer;

@@ -1,0 +1,924 @@
+"use strict";
+import Point from './Point.js';
+import {Vec3, Pointing} from "healpixjs";
+import CoordsType from '../utils/CoordsType.js';
+
+/**
+ * @author Fabrizio Giordano (Fab77)
+ */
+class GeomUtils{
+	// constructor(){}
+	
+	
+	
+	
+	/**
+	 * @param polygons: array of convex spherical polygons having points in clockwise order
+	 * @param point2Check: point to check
+	 * @return true if the point is inside one polygon, false otherwise
+	 */
+	static pointInsidePolygons2(polygons, point2Check, clockwise){
+		
+		let inside = false;
+		for (let k =0; k < polygons.length; k++){
+			
+			let currPoly = polygons[k];
+			inside = true;
+			
+			for (let i = 0; i < currPoly.length; i++){
+				
+				
+				let v1 = (i == currPoly.length - 1) ? currPoly[currPoly.length - 1] : currPoly[i];
+				let v2 = (i == currPoly.length - 1) ? currPoly[0] : currPoly[i+1];
+				
+				let normal = v1.cross(v2);
+				let scalar = normal.dot(point2Check);
+				if ( (clockwise > 0 && scalar <= 0) || (clockwise < 0 && scalar >= 0) ){ // checking points in clockwise or counter clockwise order
+					continue;
+				}else{
+					inside = false;
+					break;
+				}
+				
+				/** pesudo code
+				 * vv = v1 (X) v2;
+				 * scal = point2Check (dot) vv;
+				 * if scal > 0
+				 * 		continue;
+				 * else 
+				 * 		inside = false;
+				 * 		break;
+				 *
+				 */
+			}
+			if (inside){
+				break;
+			}
+			
+		}
+		return inside;
+	}
+
+
+	/**
+	 * 
+	 * @param {*} polygon : array of Point.js
+	 */
+	static isPolyClockwise(polygon){
+
+		let ccw = 0; // # of counterclockwise headings
+		let cw = 0; // # of clockwise headings
+		let index = 0;
+
+		for ( let p = 0; p < polygon.length; p++) {
+			let currPoly = polygon[p];
+		// for ( let currPoly of polygon) {
+			while (index < currPoly.length && currPoly.length > 2){
+					
+					
+				let first = currPoly[index];
+				let medium = null;
+				let last = null;
+				// medium = currPoly[index + 1];
+				// last = currPoly[index + 2];
+				// if (index < 0){
+				// 	first = currPoly[currPoly.length + index];
+				// }
+				
+				
+				
+				if (index == currPoly.length - 1) {
+					last = currPoly[1];
+					medium = currPoly[0];
+				} else if (index == currPoly.length - 2) {
+					last = currPoly[0];
+					medium = currPoly[index + 1];
+				} else {
+					medium = currPoly[index + 1];
+					last = currPoly[index + 2];
+				}
+				
+				let normal = first.cross(medium).norm();
+				let hnd = normal.dot(last);
+				if (hnd > 0) {
+					ccw++;
+				} else {
+					cw++;
+				}
+				index += 1;
+	
+			}
+			// console.log("Is sub polygon "+p+" convex? "+ (cw > ccw));
+		}
+		
+
+		if (cw > ccw) {
+			// return true;
+			return 1;
+		}
+		// return false;
+		return -1;
+	}
+
+	// orthodromic distance - great circle distance
+	static orthodromicDistance(p1, p2) {
+
+		// Math.sqrt( ((p1._raRad - p2._raRad)*Math.cos(p1._decRad) )**2 + (p1._decRad - p2._decRad)**2 );
+		return Math.acos(Math.sin(p1._decRad) * Math.sin(p2._decRad) + Math.cos(p1._decRad) * Math.cos(p2._decRad) * Math.cos(p2._raRad - p1._raRad));
+
+	}
+
+	static polyInsideByIntersections(polygons, point) {
+
+		let r = 1;
+		let max_distance = 0;
+		let intersections = 0; 
+		let currpoly = polygons[0];
+		for (let p = 0; p < currpoly.length - 1; p++) {
+			let p0 = currpoly[p];
+			let p1 = currpoly[p+1];
+			let d = Math.sqrt((p0._x - p1._x)**2 + (p0._y - p1._y)**2 + (p0._z - p1._z)**2 );
+			let theta = Math.asin(d/2);
+			let l = theta * r;
+			if ( l > max_distance) {
+				max_distance = l;
+			}
+		}
+		
+
+
+		for (let p = 0; p < currpoly.length - 1; p++) {
+
+			let p0 = currpoly[p];
+			let p1 = currpoly[p+1];
+
+			let p2 = point;
+			let p3 = new Point({
+				"raDeg": p2._raDeg,
+				"decDeg": p2._decDeg+max_distance
+			}, CoordsType.ASTRO);
+
+
+			let s1_ra, s1_dec, s2_ra, s2_dec;
+			s1_ra = p1._raDeg - p0._raDeg;     
+			s1_dec = p1._decDeg - p0._decDeg;
+			s2_ra = p3._raDeg - p2._raDeg;
+			s2_dec = p3._decDeg - p2._decDeg;
+
+			let s, t;
+			s = (-s1_dec * (p0._raDeg - p2._raDeg) + s1_ra * (p0._decDeg - p2._decDeg)) / (-s2_ra * s1_dec + s1_ra * s2_dec);
+			t = ( s2_ra * (p0._decDeg - p2._decDeg) - s2_dec * (p0._raDeg - p2._raDeg)) / (-s2_ra * s1_dec + s1_ra * s2_dec);
+			
+			if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
+				// Collision detected
+				// if (i_x != NULL)
+				// 	i_x = p0_x + (t * s1_x);
+				// if (i_y != NULL)
+				// 	i_y = p0_y + (t * s1_y);
+				intersections++;
+			}
+		}
+		if (intersections > 0 && (intersections % 2) == 1 ) {
+			return true;
+		}
+		
+		return false;
+
+	}
+
+	static norm(p) {
+		let length = Math.sqrt(p.x**2 + p.y**2);
+		return {
+			'x': p.x / length,
+			'y': p.y / length
+		}
+	}
+
+
+	static mercator (point) {
+
+		let x = point._raRad; 
+		// let phi = Math.PI/2 + point._decRad;
+		let phi = point._decRad;
+		let y = Math.log(Math.tan(Math.PI/4 + phi/2)); 
+		return {
+			'x': x, 
+			'y': y
+		};
+	}
+
+	static stereographic (point) {
+		return { 
+			'x': 2* parseFloat(point._x)/(1-parseFloat(point._z)), 
+			'y': 2* parseFloat(point._y)/(1-parseFloat(point._z))
+		};
+	}
+
+	static projectIn2D(point) {
+		// return GeomUtils.stereographic(point);
+		return GeomUtils.mercator(point);
+	}
+
+	/**
+	 * 
+	 * @param {*} polygons 
+	 * @returns {points: [], flag: int} where flag is
+	 * 0 -> if all points are in the same emisphere and abs(Dec) > 10 -> uses spherical projection with z=0, x = sin(dec) cos (ra); y = sin(dec) sin(ra)
+	 * 1 -> if all points are in the equatorial belt (abs(dec)< 10) => normal BBox using x=RA, y=Dec directly
+	 * 2 -> if all points are in the equatorial belt (abs(dec)< 10) and poly is crossing RA 0 => subtract 360 to every RA > 180
+	 */
+	 computeSelectionObject(polygons) {
+		let poly4selection = [];
+		let flag = 0;
+
+		const DEC_THRESHOLD = 10;
+		let emisphere = 0;  // 1 means northen emisphere with Dec > 10 deg, -1 southern emisphere with Dec < -10 deg
+		// let emishpere = (polygons[0][0].decDeg() >= DEC_THRESHOLD) ? 1 : -1; // 1 means northen emisphere, -1 southern emisphere
+		if (polygons[0][0].decDeg() >= DEC_THRESHOLD) {
+			emisphere = 1;
+		} else if (polygons[0][0].decDeg() <= -1 * DEC_THRESHOLD) {
+			emisphere = -1;
+		} else {
+			flag = 1;
+		}
+		if (flag == 0) {
+			for (let currpoly of polygons) {
+				for (let point of currpoly) {
+					if ( (point.decDeg() > emisphere * DEC_THRESHOLD && emisphere == -1) ||
+						 (point.decDeg() < emisphere * DEC_THRESHOLD && emisphere == 1) ) {
+						flag = 1;
+						break;
+					}
+				}
+			}
+		}
+		
+		if (flag == 0) {
+			return {
+				'poly4selection': polygons,
+				'flag': flag
+			};
+		}
+
+		const RA_THRESHOLD = 180;
+		let belowThreshold = (polygons[0][0].raDeg() < RA_THRESHOLD); // 1 means northen emisphere, -1 southern emisphere;
+		for (let currpoly of polygons) {
+			for (let point of  currpoly) {
+				if ( (point.raDeg() >= RA_THRESHOLD && belowThreshold) ||
+					(point.raDeg() <= RA_THRESHOLD && !belowThreshold) ) {
+					flag = 2;
+					break;
+				}
+			}
+		}
+
+		if (flag == 1) {
+			return {
+				'poly4selection': polygons,
+				'flag': flag
+			};
+		}
+
+		let mypolygons = [...polygons];
+		for (let currpoly of mypolygons) {
+			for (let point of  currpoly) {
+				if (point.raDeg() >= RA_THRESHOLD){
+					point = new Point({
+						"raDeg": 360 - point.raDeg(),
+						"decDeg": point.decDeg()
+					}, CoordsType.ASTRO);
+				}
+			}
+		}
+
+		return {
+			'poly4selection': mypolygons,
+			'flag': flag
+		};
+	}
+
+	
+
+
+
+	static checkPointInsidePolygon4(polygons, point) {
+
+		let intersections;
+		// mouse position projected into 2D XY plane
+		let p0 = GeomUtils.projectIn2D(point);
+		let lambda_p, lambda_s;
+
+		// // second arbitrary point used to construct the rect
+		// let p1 = { 
+		// 	'x': p0.x + Math.PI/2,
+		// 	'y': p0.y
+		// };
+
+		// TODO 
+		/**
+		 * [flag to indicate the projection strategy to be use fo footprint selection. 
+		 * Each polygon has is own flag computed at init time (in the constructor)]
+		 * 1. compute correct flag to be used in each Footprint (constructor)  <- move this into the Footprint constructor 
+		 * 		
+		 * 		a. flag 0:if all points are in the same emisphere and abs(Dec) > 10 -> x = sin(dec) cos (ra); y = sin(dec) sin(ra)
+		 * 		b. flag 1: normal BBox using x=RA, y=Dec directly
+		 * 		c. flag 2: subtract 360 to every RA > 180 (case when poly is crossing RA 0)
+		 * 		
+		 * 2. when cursor moves, update mouse(x, y) for each 0,1,2 projections
+		 * 3. foreach poly: 
+		 * 	3.1 select correct mouse x,y
+		 * 	3.2 check if mouse is inside BBox(poly)
+		 * 	3.3 compute p1 = p0 + (max x and y of polygon)
+		 * 	3.4 count intersections 
+		 * 
+		 */
+
+		let maxdist = point._raDeg + 15;
+		if (maxdist > 360) {
+			maxdist = point._raDeg - 15;;
+		}
+
+		let p1point = new Point({
+			"raDeg": maxdist,
+			"decDeg": point._decDeg
+		}, CoordsType.ASTRO);
+		let p1 = GeomUtils.projectIn2D(p1point);
+
+		
+		// iterating over all subpolygons
+		for (let i = 0; i < polygons.length; i++){
+			let currpoly = polygons[i];
+			
+			
+			intersections = 0;
+			let p2, p3;
+			// compute BBox
+			// computing intersection between each segment of the current subpolygon (p) and the rect m01, q01
+			for (let p = 0; p < currpoly.length-1; p++) {
+			
+				p2 = GeomUtils.projectIn2D(currpoly[p]);
+				p3 = GeomUtils.projectIn2D(currpoly[p+1]);
+
+				let denominator = (p3.y - p2.y) * (p1.x - p0.x) - (p3.x - p2.x) * (p1.y - p0.y) ;
+				let numerator01 = (p3.x - p2.x) * (p0.y - p2.y) - (p3.y - p2.y) * (p0.x - p2.x);
+				let numerator23 = (p1.x - p0.x) * (p0.y - p2.y) - (p1.y - p0.y) * (p0.x - p2.x);
+
+				if ( denominator != 0) {
+
+					let lamda01 = numerator01 / denominator;
+					let lambda23 = numerator23 / denominator;
+					if (lamda01 >= 0 && lamda01 <= 1 &&
+						lambda23 >= 0 && lambda23 <= 1) {
+							intersections++;
+						}
+
+					
+				} 
+				// else if (denominator == 0 && numerator01 == 0 && numerator23 == 0) { // coincident
+				// 	intersections++;
+				// }
+					
+			}
+			p2 = GeomUtils.projectIn2D(currpoly[currpoly.length-1])
+			p3 = GeomUtils.projectIn2D(currpoly[0])
+			let denominator = (p3.y - p2.y) * (p1.x - p0.x) - (p3.x - p2.x) * (p1.y - p0.y) ;
+			let numerator01 = (p3.x - p2.x) * (p0.y - p2.y) - (p3.y - p2.y) * (p0.x - p2.x);
+			let numerator23 = (p1.x - p0.x) * (p0.y - p2.y) - (p1.y - p0.y) * (p0.x - p2.x);
+
+			if ( denominator != 0) {
+
+				let lamda01 = numerator01 / denominator;
+				let lambda23 = numerator23 / denominator;
+				if (lamda01 >= 0 && lamda01 <= 1 &&
+					lambda23 >= 0 && lambda23 <= 1) {
+
+						intersections++;
+					}
+
+				
+			} 
+			// else if (denominator == 0 && numerator01 == 0 && numerator23 == 0) { // coincident
+			// 	// not sure ... need to check if p0 lies between p2-p3
+			// 	intersections++;
+			// }
+
+			// odd intersections means point inside, even => point outside
+			if ( (intersections % 2) == 1 ) {
+				return true;
+			}
+			
+			
+		
+		}
+
+		return false;
+
+	}
+	/**
+	 * 
+	 * @param {*} polygons Array of Arrays - (subpolygons) of Points related to a single observation
+	 * @param {*} point Point.js - mouse projection on the sphere
+	 * @returns true it point lies inside one of the subpolygons
+	 */
+	static checkPointInsidePolygon3(polygons, point) {
+		
+		let intersections;
+		// mouse position projected into 2D XY plane
+		let p0 = GeomUtils.projectIn2D(point);
+		
+		// second arbitrary point used to construct the rect
+		let p1 = { 
+			'x': p0.x + Math.PI/2,
+			'y': p0.y
+		};
+
+		// rect from 2 points
+		let m01 = (p1.y - p0.y) / (p1.x - p0.x);
+		let q01 = p1.y - m01 * p1.x;
+		
+
+		// iterating over all subpolygons
+		for (let i = 0; i < polygons.length; i++){
+			let currpoly = polygons[i];
+			
+			let pproj = GeomUtils.projectIn2D(currpoly[0])
+
+			let max_x = pproj.x;
+			let max_y = pproj.y;
+			
+			let min_x = pproj.x;
+			let min_y = pproj.y;
+			
+			// computing max and min (XY) used to check if point lies in the bounding box of the current (i) subpolygon
+			for (let k = 1; k < currpoly.length; k++) {
+
+				let pproj = GeomUtils.projectIn2D(currpoly[k])
+				
+				if (parseFloat(pproj.x) > max_x) {
+					max_x = parseFloat(pproj.x);
+				}
+				if (parseFloat(pproj.y) > max_y) {
+					max_y = parseFloat(pproj.y);
+				}
+				if (parseFloat(pproj.x) < min_x) {
+					min_x = parseFloat(pproj.x);
+				}
+				if (parseFloat(pproj.y) < min_y) {
+					min_y = parseFloat(pproj.y);
+				}
+			}
+			// checking if points lies inside the boundig box (BB) of the current subpoly. This false matches
+			// where p1 lies in BB but p0
+			if (p0.x <= max_x && p0.x >= min_x &&
+				p0.y <= max_y && p0.y >= min_y ) {
+
+				intersections = 0;
+				let p2, p3;
+				
+				// computing intersection between each segment of the current subpolygon (p) and the rect m01, q01
+				for (let p = 0; p < currpoly.length-1; p++) {
+				
+					p2 = GeomUtils.projectIn2D(currpoly[p])
+					p3 = GeomUtils.projectIn2D(currpoly[p+1])
+					
+					let m23 = (p3.y - p2.y) / (p3.x - p2.x);
+					let q23 = p3.y - m23 * p3.x;
+
+					let s_x = (q23 - q01) / (m01 - m23);
+					let s_y = m23*s_x + q23;
+				
+					// checking if the solution belongs to the segment and doesn't occur 
+					// below (min(p2.x, p3.x) , min(p2.y, p3.y)) or over (max(p2.x, p3.x), max(p2.y, p3.y))
+					if (s_x <= Math.max(p2.x, p3.x) && s_x >= Math.min(p2.x, p3.x) &&
+						s_y <= Math.max(p2.y, p3.y) && s_y >= Math.min(p2.y, p3.y)) {
+							intersections++;
+					}
+				}
+
+				// this is because I missed checking the segment from last point to the first point.(it could be better coded)
+				p2 = GeomUtils.projectIn2D(currpoly[currpoly.length-1])
+				
+				p3 = GeomUtils.projectIn2D(currpoly[0])
+
+				let m23 = (p3.y - p2.y) / (p3.x - p2.x);
+				let q23 = p2.y - m23 * p2.x;
+
+				let s_x = (q23 - q01) / (m23 - m01);	// x coord of the solution
+				let s_y = m01*s_x + q01;				// y coord of the solution
+			
+				if (s_x <= Math.max(p2.x, p3.x) && s_x >= Math.min(p2.x, p3.x) &&
+					s_y <= Math.max(p2.y, p3.y) && s_y >= Math.min(p2.y, p3.y)) {
+						intersections++;
+				}
+
+				// odd intersections means point inside, evem => point outside
+				if ( (intersections % 2) == 1 ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	static checkPointInsidePolygon2(polygons, point) {
+		
+		let intersections;
+		// stereographic projection on plane XY
+		let p0 = { 
+			'x': point._x/(1-point._z), 
+			'y': point._y/(1-point._z)
+		};
+
+		for (let i = 0; i < polygons.length; i++){
+			let currpoly = polygons[i];
+			intersections = 0;
+			let max_x = parseFloat(currpoly[0]._x);
+			let max_y = parseFloat(currpoly[0]._y);
+			for (let p = 1; p < currpoly.length; p++) {
+				let curp = {
+					'x': parseFloat(currpoly[p]._x)/ (1 - parseFloat(currpoly[p]._z)), 
+					'y': parseFloat(currpoly[p]._y)/ (1 - parseFloat(currpoly[p]._z))
+				};
+				if (parseFloat(curp._x) > max_x) {
+					max_x = parseFloat(curp._x);
+				}
+				if (parseFloat(curp._y) > max_y) {
+					max_y = parseFloat(curp._y);
+				}
+			}
+
+			let p1 = { 
+				'x': p0.x + max_x, 
+				'y': p0.y + max_y
+			};
+			let m12 = (p1.y - p0.y) / ((p1.x - p0.x));
+			let q12 = p0.y - m12 * p0.x;
+
+			for (let p = 0; p < currpoly.length - 1; p++) {
+				let p2 = {
+					'x': parseFloat(currpoly[p]._x)/ (1 - parseFloat(currpoly[p]._z)), 
+					'y': parseFloat(currpoly[p]._y)/ (1 - parseFloat(currpoly[p]._z))
+				};
+				let p3 = {
+					'x': parseFloat(currpoly[p+1]._x)/ (1 - parseFloat(currpoly[p+1]._z)), 
+					'y': parseFloat(currpoly[p+1]._y)/ (1 - parseFloat(currpoly[p+1]._z))
+				};
+				let m23 = (p3.y - p2.y) / (p3.x - p2.x);
+				let q23 = p2.y - m23 * p2.x;
+
+				let s_x = (q23 - q12) / (m23 - m12);
+				let s_y = m12*s_x + q12;
+			
+				if (s_x <= Math.max(p2.x, p3.x) && s_x >= Math.min(p2.x, p3.x) &&
+					s_y <= Math.max(p2.y, p3.y) && s_y >= Math.min(p2.y, p3.y)) {
+						intersections++;
+				}
+			}
+
+			let p2 = {
+				'x': parseFloat(currpoly[currpoly.length - 1]._x)/ (1 - parseFloat(currpoly[currpoly.length - 1]._z)), 
+				'y': parseFloat(currpoly[currpoly.length - 1]._y)/ (1 - parseFloat(currpoly[currpoly.length - 1]._z))
+			};
+			let p3 = {
+				'x': parseFloat(currpoly[0]._x)/ (1 - parseFloat(currpoly[0]._z)), 
+				'y': parseFloat(currpoly[0]._y)/ (1 - parseFloat(currpoly[0]._z))
+			};
+			let m23 = (p3.y - p2.y) / (p3.x - p2.x);
+			let q23 = p2.y - m23 * p2.x;
+
+			let s_x = (q23 - q12) / (m12 - m23);
+			let s_y = m12*s_x + q12;
+		
+			if (s_x <= Math.max(p2.x, p3.x) && s_x >= Math.min(p2.x, p3.x) &&
+				s_y <= Math.max(p2.y, p3.y) && s_y >= Math.min(p2.y, p3.y)) {
+					intersections++;
+			}
+			
+			if ( (intersections % 2) == 1 ) {
+				return true;
+			}
+
+		}
+		
+
+		
+
+		return false;
+	}
+
+	// ref http://www.boeing-727.com/Data/fly%20odds/distance.html
+	// ref https://blog.mbedded.ninja/mathematics/geometry/spherical-geometry/finding-the-intersection-of-two-arcs-that-lie-on-a-sphere/	
+	static checkPointInsidePolygon(polygons, point) {
+		let max_distance = 0;
+		let intersections;
+		let r = 1.0;
+		// for (let i = 0; i < polygons.length; i++){
+		// 	let currpoly = polygons[i];
+		// 	let p0 = currpoly[0];
+		// 	let p0_norm = p0.norm();
+		// 	for (let p = 1; p < currpoly.length; p++) {
+		// 		let p1 = currpoly[p];
+		// 		let p1_norm = p1.norm();
+		// 		// let sigma = Math.atan2(p0_norm.dot(p1_norm),  (p0_norm.cross(p1_norm)).length() );
+		// 		let sigma = Math.acos(p0_norm.dot(p1_norm));
+		// 		let sigma_deg = sigma * 180 / Math.PI;
+		// 		if ( sigma_deg > max_distance) {
+		// 			max_distance = sigma_deg;
+		// 		}
+		// 		// let d = Math.sqrt((p0._x - p1._x)**2 + (p0._y - p1._y)**2 + (p0._z - p1._z)**2 );
+		// 		// let d = Math.sqrt((p0._raDeg - p1._raDeg)**2 + (p0._decDeg - p1._decDeg)**2 );
+		// 		// let theta = Math.asin(d/2);
+		// 		// let l = theta * r;
+		// 		// if ( l > max_distance) {
+		// 		// 	max_distance = l;
+		// 		// }
+		// 	}
+		// }
+
+		let p11 = point;
+		let outdec = p11._decDeg + 179;
+		if (outdec > 90) {
+			outdec -= 180;
+		}
+
+		
+		let p12 = new Point({
+			"raDeg": p11._raDeg,
+			"decDeg": outdec
+		}, CoordsType.ASTRO);
+
+		let v1 = p11.cross(p12);
+		let v1_mod = Math.sqrt(v1._x**2 + v1._y**2 + v1._z**2);
+		let u1 = v1.scale(1/v1_mod);
+		let epsilon = 10**-9;
+
+		for (let i = 0; i < polygons.length; i++){
+			intersections = 0;
+			let currpoly = polygons[i];
+			for (let p = 0; p < currpoly.length - 1; p++) {
+				let p21 = currpoly[p];
+				// let mod_p21 = Math.sqrt(p21._x**2 + p21._y**2 + p21._z**2);
+				let p22 = currpoly[p+1];
+				// let mod_p22 = Math.sqrt(p22._x**2 + p22._y**2 + p22._z**2);
+
+				let v2 = p21.cross(p22);
+				let v2_mod = Math.sqrt(v2._x**2 + v2._y**2 + v2._z**2);
+				let u2 = v2.scale(1/v2_mod);
+
+				if (Math.abs(u1._x - u2._x) < epsilon && 
+					Math.abs(u1._y - u2._y) < epsilon && 
+					Math.abs(u1._z - u2._z) < epsilon){
+					continue;
+				}
+
+				let d = u1.cross(u2);
+				let d_mod = Math.sqrt(d._x**2 + d._y**2 + d._z**2);
+				let s1 = d.scale(1/d_mod);	// 1st solution
+				let s2 = d.scale(-1/d_mod);	// 2nd solution
+
+				// orthodromic distance - great circle distance
+				let sigma_p11_s1 = GeomUtils.orthodromicDistance(p11, s1);
+				let sigma_p12_s1 = GeomUtils.orthodromicDistance(s1, p12);
+				let sigma_p11_p12 = GeomUtils.orthodromicDistance(p11, p12);
+
+				let test11 = Math.abs(sigma_p11_p12 - sigma_p11_s1 - sigma_p12_s1);
+
+				let sigma_p21_s1 = GeomUtils.orthodromicDistance(p21, s1);
+				let sigma_p22_s1 = GeomUtils.orthodromicDistance(s1, p22);
+				let sigma_p21_p22 = GeomUtils.orthodromicDistance(p21, p22);
+
+				let test21 = Math.abs(sigma_p21_p22 - sigma_p21_s1 - sigma_p22_s1);
+
+				if (test11 <= epsilon && test21 <= epsilon) {
+					intersections++;
+					// points2bRemoved.push(i+1, j+1);
+				} else {
+
+					let sigma_p11_s2 = GeomUtils.orthodromicDistance(p11, s2);
+					let sigma_p12_s2 = GeomUtils.orthodromicDistance(s2, p12);
+
+					let test12 = Math.abs(sigma_p11_p12 - sigma_p11_s2 - sigma_p12_s2);
+
+					let sigma_p21_s2 = GeomUtils.orthodromicDistance(p21, s2);
+					let sigma_p22_s2 = GeomUtils.orthodromicDistance(s2, p22);
+					
+					let test22 = Math.abs(sigma_p21_p22 - sigma_p21_s2 - sigma_p22_s2);
+
+					if (test12 <= epsilon && test22 <= epsilon) {
+						// points2bRemoved.push(i+1, j+1);
+						intersections++;
+					}
+				}
+			}
+			if ( (intersections % 2) == 1 ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+
+	// ref http://www.boeing-727.com/Data/fly%20odds/distance.html
+	// ref https://blog.mbedded.ninja/mathematics/geometry/spherical-geometry/finding-the-intersection-of-two-arcs-that-lie-on-a-sphere/
+	static checkLinesOverlapping(polygons) {
+
+		let intersection = 0;
+		let points2bRemoved = [];
+		let epsilon = 10**-9;
+		for (let i = 0; i < polygons.length - 1; i++){
+			let p11 = polygons[i];
+			// let mod_p11 = Math.sqrt(p11._x**2 + p11._y**2 + p11._z**2);
+			let p12 = polygons[i+1];
+			// let mod_p12 = Math.sqrt(p12._x**2 + p12._y**2 + p12._z**2);
+			
+			let v1 = p11.cross(p12);
+			let v1_mod = Math.sqrt(v1._x**2 + v1._y**2 + v1._z**2);
+			let u1 = v1.scale(1/v1_mod);
+
+			for (let j = i + 2; j < polygons.length - 1; j++){
+				let p21 = polygons[j];
+				// let mod_p21 = Math.sqrt(p21._x**2 + p21._y**2 + p21._z**2);
+				let p22 = polygons[j+1];
+				// let mod_p22 = Math.sqrt(p22._x**2 + p22._y**2 + p22._z**2);
+
+				let v2 = p21.cross(p22);
+				let v2_mod = Math.sqrt(v2._x**2 + v2._y**2 + v2._z**2);
+				let u2 = v2.scale(1/v2_mod);
+
+				if (Math.abs(u1._x - u2._x) < epsilon && 
+					Math.abs(u1._y - u2._y) < epsilon && 
+					Math.abs(u1._z - u2._z) < epsilon){
+					continue;
+				}
+
+				let d = u1.cross(u2);
+				let d_mod = Math.sqrt(d._x**2 + d._y**2 + d._z**2);
+				let s1 = d.scale(1/d_mod);	// 1st solution
+				let s2 = d.scale(-1/d_mod);	// 2nd solution
+
+				// orthodromic distance - great circle distance
+				let sigma_p11_s1 = GeomUtils.orthodromicDistance(p11, s1);
+				let sigma_p12_s1 = GeomUtils.orthodromicDistance(s1, p12);
+				let sigma_p11_p12 = GeomUtils.orthodromicDistance(p11, p12);
+
+				let test11 = Math.abs(sigma_p11_p12 - sigma_p11_s1 - sigma_p12_s1);
+
+				let sigma_p21_s1 = GeomUtils.orthodromicDistance(p21, s1);
+				let sigma_p22_s1 = GeomUtils.orthodromicDistance(s1, p22);
+				let sigma_p21_p22 = GeomUtils.orthodromicDistance(p21, p22);
+
+				let test21 = Math.abs(sigma_p21_p22 - sigma_p21_s1 - sigma_p22_s1);
+
+				if (test11 <= epsilon && test21 <= epsilon) {
+					intersection++;
+					points2bRemoved.push(i+1, j+1);
+				} else {
+
+					let sigma_p11_s2 = GeomUtils.orthodromicDistance(p11, s2);
+					let sigma_p12_s2 = GeomUtils.orthodromicDistance(s2, p12);
+
+					let test12 = Math.abs(sigma_p11_p12 - sigma_p11_s2 - sigma_p12_s2);
+
+					let sigma_p21_s2 = GeomUtils.orthodromicDistance(p21, s2);
+					let sigma_p22_s2 = GeomUtils.orthodromicDistance(s2, p22);
+					
+					let test22 = Math.abs(sigma_p21_p22 - sigma_p21_s2 - sigma_p22_s2);
+
+					if (test12 <= epsilon && test22 <= epsilon) {
+						points2bRemoved.push(i+1, j+1);
+						intersection++;
+					}
+				}
+			}
+		}
+		return points2bRemoved;
+	}
+
+
+	// static indexOf(polygon, point) {
+	// 	for (let i = 0; i < polygon.length; i++) {
+	// 		let polypoint = polygon[i];
+	// 		if (point._x == polypoint._x && point._y == polypoint._y && point._z == polypoint._z) {
+	// 			return i;
+	// 		}
+	// 	}
+	// }
+
+	/**
+	 * @param polygons: array of convex polygons having with points in clockwise order
+	 * @return an array of convex polygons
+	 */
+// Error with the following obs form Herschel
+	// 1342238834
+	// select%20stc_s,%20%20*%20from%20observations.mv_v_v_hsa_esasky_photo_fdw_fdw%20where%201=INTERSECTS(fov,%20POLYGON('ICRS',%2056.494287732802576,23.231402198562364,56.43212556317341,22.94436643867114,56.36956670001291,22.6574274381246,56.60215515099627,22.61462499863444,56.834500323037545,22.57102941738539,56.89734035218231,22.857907507969117,56.96111412691976,23.14463678360596,56.72772443886487,23.18796229181082))
+	 static computeConvexPolygons4(polygons, clockwise){
+		
+		let epsilon = 10**-9;
+		let clonedpolygons = [polygons.length];
+		let iteration = -1;
+
+		let flip = clockwise;
+		// clockwise = (GeomUtils.isPolyClockwise(polygons) ? 1 : -1 );
+		// console.log("Polygon is "+clockwise);
+		let linesCrossing = false;
+		for (let i = 0; i < polygons.length; i++){
+			
+	        let index = 0;
+	        let currPoly = [...polygons[i]];
+	        clonedpolygons[i] = currPoly;
+
+			linesCrossing = false;
+
+			let points2bremoved = GeomUtils.checkLinesOverlapping(polygons[i]);
+			currPoly.splice(points2bremoved[0], points2bremoved[points2bremoved.length - 1] - points2bremoved[0]);
+			// for (let p = 0; p < points2bremoved.length; p++) {
+			// 	currPoly.splice(points2bremoved[p], 1);
+			// }
+			let normals = [];
+
+	        if (currPoly.length > 3){
+				
+	        	while (index < currPoly.length && currPoly.length > 3){
+					iteration++;
+					let len = currPoly.length;
+			
+					if (Math.abs(index) == len) {
+						index = 0;
+					}
+			
+					let fidx = index;
+					let midx = (index + 1) >= len ? (index + 1) % currPoly.length : index + 1; 
+					let lidx = (index + 2) >= len ? (index + 2) % currPoly.length : index + 2;
+
+					let first = currPoly[fidx];
+		            let medium = currPoly[midx]; 
+		            let last = currPoly[lidx];
+					// let test = currPoly[tidx];
+					
+					// console.log(iteration+" | " + index + " | " + "["+polygons[i].indexOf(first)+", "+polygons[i].indexOf(medium)+", "+polygons[i].indexOf(last)+"]");
+					let normal = first.cross(medium).norm();
+					let hnd = normal.dot(last);
+
+					normals[index] = normal;
+					
+					let flipThnd = flip * hnd;
+					if (flipThnd >= 0) {
+						if (index == currPoly.length - 1) {
+							currPoly.splice( (index + 1) % currPoly.length, 1);
+						}else{
+							currPoly.splice(index + 1, 1);	
+						}
+						if (index - 1 >= 0) {
+							index -= 1;
+						}
+						continue;
+					}
+
+					// if ( (clockwise > 0 && hnd >= -epsilon) || (clockwise < 0 && hnd <= epsilon) 
+					// 	){
+					// 	if (index == currPoly.length - 1) {
+					// 		currPoly.splice( (index + 1) % currPoly.length, 1);
+					// 	}else{
+					// 		currPoly.splice(index + 1, 1);	
+					// 	}
+					// 	if (index - 1 >= 0) {
+					// 		index -= 1;
+					// 	}
+					// 	continue;
+					// } 
+					index += 1;
+		        	
+		        }
+				// normals.splice(currPoly.length - 1, normals.length - 1 - currPoly.length - 1);
+				// let angle = 0
+				// for (let n = 0; n < normals.length - 1; n+=2){
+				// 	angle += Math.acos( normals[n].dot(normals[n+1]) / (normals[n].length() * normals[n+1].length()) ) ;
+				// }
+				// angle += Math.acos( normals[normals.length - 1].dot(normals[0]) / (normals[normals.length - 1].length() * normals[0].length()) ) ;
+				// console.log(angle);
+	        }
+	        
+	        // points2bremoved = GeomUtils.checkLinesOverlapping(currPoly);
+			// currPoly.splice(points2bremoved[0], points2bremoved[points2bremoved.length - 1] - points2bremoved[0]);
+			// for (let p = 0; p < points2bremoved.length; p++) {
+			// 	linesCrossing = true;
+			// 	currPoly.splice(points2bremoved[p], 1);
+			// }
+			
+			
+		}
+		if (linesCrossing) {
+			clonedpolygons = GeomUtils.computeConvexPolygons4(clonedpolygons, clockwise);
+		}
+		
+		return clonedpolygons;		
+	}
+
+	
+	
+  }
+
+export default GeomUtils;

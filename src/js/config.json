@@ -1,0 +1,22 @@
+{
+    "tapProviders": [
+		"https://archive.eso.org/tap_cat/",
+		"https://archive.eso.org/tap_obs/",
+		"https://sky.esa.int/esasky-tap/tap/",
+		"https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/argus"
+	],
+    "hipsNodes": ["https://skies.esac.esa.int/", "https://alasky.cds.unistra.fr/hipslist"],
+    "corsProxyUrl": "http://localhost:4000/",
+    "useCORSProxy": true,
+    "maxDecimals": 15,
+    "defaultHipsUrl": "//skies.esac.esa.int/DSSColor",
+    "version": "Astrobrowser v1.0.0",
+    "debug": false,
+    "insideView": false,
+    "camera": {
+        "fovDeg": 34,
+        "nearPlane": 0.00001,
+        "farPlane": 2.5
+
+    }
+}
