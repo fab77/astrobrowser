@@ -35,18 +35,13 @@ let inproj = new HiPSProjection();
 
 inproj.parsePropertiesFile(hipsBaseUri).then((propfile) => {
 
-    console.log(propfile);
     inproj.initFromHiPSLocationAndPxSize(hipsBaseUri, pxsize_deg);
-    // console.log(inproj)
 
     let outproj = new MercatorProjection();
 
-    console.log("ra %s, dec %s, px_size %s, radius %s", radeg, decdeg, pxsize_deg, radius_deg)
     WCSLight.cutout(center, radius_deg, pxsize_deg, inproj, outproj).then((result) => {
-        console.log(result);
 
         if (result.fitsused.length > 0) {
-            console.log(result);
 
 
         } else {

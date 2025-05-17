@@ -7,7 +7,7 @@ import usersRouter from './routes/users.js';
 import apiRouter from './routes/api.js';
 import extUrlRouter from './routes/exturl.js';
 import adqlUrlRouter from './routes/adql.js';
-// import backendRouter from './routes/backend.js';
+
 import cors from 'cors';
 import axios from 'axios';
 
@@ -16,20 +16,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// import {FVApp} from '../public/javascripts/fabviewer.js'
-// import {FVApp} from 'FVApp';
-
-// var express = require('express');
-// var path = require('path');
-// var cookieParser = require('cookie-parser');
-// var logger = require('morgan');
-
-// var indexRouter = require('./routes/index');
-// var usersRouter = require('./routes/users');
 
 
-
-var app = express();
+let app = express();
 
 app.use(cors({
     origin: '*'
@@ -46,20 +35,7 @@ app.use('/users', usersRouter);
 app.use('/api', apiRouter);
 app.use('/exturl', extUrlRouter);
 app.use('/adql', adqlUrlRouter);
-// app.use('/backend', backendRouter);
 
-// app.get('exturl', async (req, res) => {
-//   let url = req.query.url
-//   await axios.get(url, {
-//     params: params
-//   }).then(response => {
-//     res.header("Access-Control-Allow-Origin", "*");
-//     res.send(response.data)
-    
-//   }).catch(error => {
-//     res.json(error)
-//   })
-// });
 
 app.get('//:exturl', async (req, res) => {
   
@@ -80,5 +56,4 @@ app.get('//:exturl', async (req, res) => {
       res.json(error)
     })
   });
-// module.exports = app;
 export default app;

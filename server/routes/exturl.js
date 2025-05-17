@@ -14,7 +14,6 @@ let router = express.Router();
 /* GET exturl. */
 
 router.get('/', function(req, res, next) {
-    console.log("in exturl")
     let url = req.query.url
     let params = {}
     axios.get(url, {
